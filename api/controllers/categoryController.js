@@ -3,7 +3,14 @@ var functions = require("../../helpers/functions");
 var mongoose = require("mongoose"), Category = mongoose.model("categories");
 
 exports.get_all = function(req, res) {
-	Category.find({}, function(err, data) {
+	var projection = {
+		title: true,
+		type: true,
+		status: true,
+		timestamp: true,
+		datetime: true
+	};
+	Category.find({}, projection, function(err, data) {
 		if(err){
 			functions.ArrayResponse(res, 400, "Error", err);
 		}else{
@@ -17,7 +24,16 @@ exports.get_all = function(req, res) {
 };
 
 exports.get_all_by_type = function(req, res) {
-	Category.find({type: req.params.type}, function(err, data) {
+	var query = {
+		type: req.params.type
+	};
+	var projection = {
+		title: true,
+		status: true,
+		timestamp: true,
+		datetime: true
+	};
+	Category.find(query, projection, function(err, data) {
 		if(err){
 			functions.ArrayResponse(res, 400, "Error", err);
 		}else{
