@@ -3,6 +3,7 @@ var express = require("express"),
 	port = process.env.PORT || 3000,
 	mongoose = require("mongoose"),
 	Category = require("./api/models/categoryModel"), //created model category here
+	Admin = require("./api/models/adminModel"), //created model admin here
 	bodyParser = require("body-parser");
 
 //mongoose instance connection url connection
@@ -13,7 +14,9 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 
 var categoryRoutes = require("./api/routes/categoryRoutes"); //importing category route
+var adminRoutes = require("./api/routes/adminRoutes"); //importing admin route
 categoryRoutes(app); //register the category route
+adminRoutes(app); //register the admin route
 
 app.listen(port);
 console.log("GPIB Kharis RESTful API server started on: " + port);
