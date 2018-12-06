@@ -10,7 +10,12 @@ exports.get_all = function(req, res) {
 		timestamp: true,
 		datetime: true
 	};
-	Category.find({}, projection, function(err, data) {
+	var options = {
+		sort: {
+			title: 1
+		}
+	};
+	Category.find({}, projection, options, function(err, data) {
 		if(err){
 			functions.ArrayResponse(res, 400, "Error", err);
 		}else{
@@ -33,7 +38,12 @@ exports.get_all_by_type = function(req, res) {
 		timestamp: true,
 		datetime: true
 	};
-	Category.find(query, projection, function(err, data) {
+	var options = {
+		sort: {
+			title: 1
+		}
+	};
+	Category.find(query, projection, options, function(err, data) {
 		if(err){
 			functions.ArrayResponse(res, 400, "Error", err);
 		}else{
