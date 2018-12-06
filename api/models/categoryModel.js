@@ -12,10 +12,8 @@ var CategorySchema = new Schema({
 		required: "Slug is required"
 	},
 	type: {
-		type: [{
-			type: String,
-			enum: ['article', 'event']
-		}],
+		type: String,
+		enum: ['article', 'event'],
 		required: "Type is required"
 	},
 	status: {
@@ -32,4 +30,5 @@ var CategorySchema = new Schema({
 	}
 });
 
+CategorySchema.index({title: 1, type: 1}, {unique: true});
 module.exports = mongoose.model("categories", CategorySchema);

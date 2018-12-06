@@ -1,2 +1,1 @@
--liat dibagian schema model, validasi apa-apa aja yang perlu
 -ada mongodb, jadi bisa tentuin field-field apa aja yg bisa di return/yang perlu di update

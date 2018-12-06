@@ -17,3 +17,7 @@ categoryRoutes(app); //register the category route
 
 app.listen(port);
 console.log("GPIB Kharis RESTful API server started on: " + port);
+
+app.use(function(req, res) {
+  res.status(404).send({status: 404, message: req.originalUrl + " not found"});
+});
