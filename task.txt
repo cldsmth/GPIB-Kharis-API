@@ -1,5 +1,4 @@
 task 1
--pagination di get all admin
 -saat update, update juga field timestamp (untuk semua module)
 -encrypt password
 -action admin login, change password

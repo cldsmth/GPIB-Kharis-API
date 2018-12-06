@@ -3,6 +3,8 @@ var functions = require("../../helpers/functions");
 var mongoose = require("mongoose"), Admin = mongoose.model("admins");
 
 exports.get_all = function(req, res) {
+	var size = 20;
+	var page = req.params.page;
 	var projection = {
 		name: true,
 		email: true,
@@ -12,21 +14,37 @@ exports.get_all = function(req, res) {
 		datetime: true
 	};
 	var options = {
-		sort: {
-			datetime: -1
-		}
+		skip: size * (page - 1),
+    	limit: size
 	};
-	Admin.find({}, projection, options, function(err, data) {
-		if(err){
-			functions.ArrayResponse(res, 400, "Error", err);
-		}else{
-			if(functions.checkArray(data)){
-				functions.ArrayResponse(res, 200, "Data Exist", data);
+	if(Number(page)){
+		Admin.count({}, function(err_count, tot_count) {
+	    	if(err_count){
+				functions.ArrayResponse(res, 400, "Error", err_count);
 			}else{
-				functions.BaseResponse(res, 400, "No Data");
+				Admin.find({}, projection, options).sort({datetime: -1}).exec(function(err, data) {
+					if(err){
+						functions.ArrayResponse(res, 400, "Error", err);
+					}else{
+						if(functions.checkArray(data)){
+							var datas = {
+								total_page: Math.ceil(tot_count / size),
+								total_data: data.length,
+								total_data_all: tot_count,
+								remaining: tot_count - (((page-1) * size) + data.length),
+								data: data
+							};
+							functions.ArrayResponse(res, 200, "Data Exist", datas);
+						}else{
+							functions.BaseResponse(res, 400, "No Data");
+						}
+					}
+				});
 			}
-		}
-	});
+	    });
+	}else{
+		functions.BaseResponse(res, 401, "Invalid page number, should start with 1");
+	}
 };
 
 exports.get_detail = function(req, res) {
