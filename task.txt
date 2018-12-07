@@ -1,5 +1,4 @@
 task 1
--saat insert admin, tambahkan fungsi generate string 32 untuk field auth_code
 -saat update, di bikin yang di return hanya field-field yang di update saja
 -action change password
 -uploading image

@@ -100,6 +100,7 @@ exports.get_detail = function(req, res) {
 
 exports.insert_data = function(req, res) {
 	var body = req.body;
+	body.auth_code = functions.generate_code(32);
 	if(!functions.isEmpty(body.password)){
 		var passwords = passwordHash.saltHashPassword(body.password);
 		body.salt_hash = passwords.salt;

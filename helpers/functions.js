@@ -1,5 +1,14 @@
+module.exports.generate_code = function(length) {
+	var text = "";
+	var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+	for(var i=0; i<length; i++){
+		text += possible.charAt(Math.floor(Math.random() * possible.length));
+	}
+	return text.toUpperCase();
+}
+
 module.exports.isEmpty = function(value) {
-	return typeof value == 'string' && !value.trim() || typeof value == 'undefined' || value === null;
+	return typeof value == "string" && !value.trim() || typeof value == "undefined" || value === null;
 }
 
 module.exports.parseObjectToJSON = function(data) {
