@@ -10,6 +10,9 @@ module.exports = function(app) {
 		.put(admin.update_data)
 		.delete(admin.delete_data);
 
+	app.route("/admin/login")
+		.post(admin.login);
+
 	app.route("/admin/page/:page")
 		.get(admin.get_all);
 }

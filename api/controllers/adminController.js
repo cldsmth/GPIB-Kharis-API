@@ -1,6 +1,43 @@
 "use strict";
 var functions = require("../../helpers/functions");
+var PasswordHash = require("../../class/PasswordHash"), passwordHash = new PasswordHash();
 var mongoose = require("mongoose"), Admin = mongoose.model("admins");
+
+exports.login = function(req, res) {
+	var body = req.body;
+	var email = body.email;
+	var password = body.password;
+	getSalthHash(email).then((resolve) => {
+		var query = {
+			email: email,
+			password: passwordHash.getHashPassword(password, resolve)
+		};
+		var projection = {
+			name: true,
+			email: true,
+			img: true,
+			auth_code: true,
+			status: true
+		};
+		Admin.findOne(query, projection, function(err, data) {
+			if(err){
+				functions.ArrayResponse(res, 400, "Error", err);
+			}else{
+				if(functions.checkUndefined(data)){
+					if(data.status == 1){
+						functions.ArrayResponse(res, 200, "Success", data);	
+					}else{
+						functions.BaseResponse(res, 401, "Your account has been inactive");
+					}
+				}else{
+					functions.BaseResponse(res, 400, "Failed");
+				}
+			}
+		});
+	}).catch(reject => {
+		functions.BaseResponse(res, 400, reject);
+	});
+};
 
 exports.get_all = function(req, res) {
 	var size = 20;
@@ -62,7 +99,16 @@ exports.get_detail = function(req, res) {
 };
 
 exports.insert_data = function(req, res) {
-	var param = new Admin(req.body);
+	var body = req.body;
+	if(!functions.isEmpty(body.password)){
+		var passwords = passwordHash.saltHashPassword(body.password);
+		body.salt_hash = passwords.salt;
+		body.password = passwords.password;
+	}else{
+		body.salt_hash = "";
+		body.password = "";
+	}
+ 	var param = new Admin(body);
 	param.save(function(err, data) {
 		if(err){
 			functions.ArrayResponse(res, 400, "Error", err);
@@ -102,6 +148,28 @@ exports.delete_data = function(req, res) {
 			}else{
 				functions.BaseResponse(res, 400, "Failed");
 			}
+		}
+	});
+};
+
+function getSalthHash(email) {
+	return new Promise(function(resolve, reject) {
+		try{
+			Admin.findOne({email: email}, {salt_hash: true}, function(err, data) {
+				var value;
+				if(err){
+					value = ""; 
+				}else{
+					if(functions.checkUndefined(data)){
+						value = data.salt_hash;
+					}else{
+						value = "";
+					}
+				}
+				resolve(value);
+			});
+		}catch(error){
+			reject(error);
 		}
 	});
 };

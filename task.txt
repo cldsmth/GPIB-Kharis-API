@@ -1,12 +1,9 @@
 task 1
--encrypt password
--action admin login, change password
+-saat insert admin, tambahkan fungsi generate string 32 untuk field auth_code
+-saat update, di bikin yang di return hanya field-field yang di update saja
+-action change password
 -uploading image
 
 task 2
 -create api keluarga
 -create api jemaat
-
-note:
--how to call class in another file
- 1. var Encryption = require("../../class/Encryption"), encryption = new Encryption();
