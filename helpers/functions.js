@@ -1,3 +1,7 @@
+module.exports.parseObjectToJSON = function(data) {
+	return JSON.stringify(data);
+}
+
 module.exports.checkArray = function(data) {
 	return Array.isArray(data) && data.length ? true : false;
 }

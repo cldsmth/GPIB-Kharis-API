@@ -86,7 +86,9 @@ exports.insert_data = function(req, res) {
 };
 
 exports.update_data = function(req, res) {
-	Category.findOneAndUpdate({_id: req.params.id}, req.body, {new: true}, function(err, data) {
+	var body = req.body;
+	body.timestamp = Date.now();
+	Category.findOneAndUpdate({_id: req.params.id}, body, {new: true}, function(err, data) {
 		if(err){
 			functions.ArrayResponse(res, 400, "Error", err);
 		}else{
