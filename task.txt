@@ -6,3 +6,7 @@ task 1
 task 2
 -create api keluarga
 -create api jemaat
+
+note:
+-how to call class in another file
+ 1. var Encryption = require("../../class/Encryption"), encryption = new Encryption();
