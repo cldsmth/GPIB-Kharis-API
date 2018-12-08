@@ -1,5 +1,4 @@
 task 1
--nanti disetiap action, tambahkan try catch untuk mengatasi error
 -uploading image
 
 task 2
