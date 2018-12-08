@@ -5,6 +5,8 @@ var express = require("express"),
 	Category = require("./api/models/categoryModel"), //created model category here
 	Admin = require("./api/models/adminModel"), //created model admin here
 	bodyParser = require("body-parser");
+	
+global.__basedir = __dirname;
 
 //mongoose instance connection url connection
 mongoose.Promise = global.Promise;

@@ -18,4 +18,7 @@ module.exports = function(app) {
 
 	app.route("/admin/page/:page")
 		.get(admin.get_all);
+
+	app.route("/admin/upload")
+		.post(admin.upload_image);
 }
