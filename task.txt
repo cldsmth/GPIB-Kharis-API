@@ -1,5 +1,6 @@
 task 1
--uploading image
+-crop image saat upload image
+-finishing uploading image insert/update admin
 
 task 2
 -create api keluarga

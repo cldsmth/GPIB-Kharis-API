@@ -6,39 +6,20 @@ var multer = require("multer");
 
 exports.upload_image = function(req, res) {
 	try{
-		const path = require('path');
-		var storage = multer.diskStorage({
-			destination: (req, file, cb) => {
-				cb(null, __basedir + "/uploads/admin/")
-			},
-			filename: (req, file, cb) => {
-			  	cb(null, file.fieldname + "-" + Date.now() + "-" + file.originalname)
-			}
-		});
-		var upload = multer({
-			storage: storage,
-			limits: {
-				fileSize: 9 * 1024 * 1024 //9MB
-			},
-			fileFilter: (req, file, cb) => {
-				var filetypes = /jpeg|jpg|png/;
-				var extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-				if(!extname){
-				  	return cb(new Error("File upload only supports the following filetypes - " + filetypes));
-				}
-				cb(null, true);
-			}
-		}).single("image");
-		upload(req, res, function(err) {
-			if(err){
-				functions.BaseResponse(res, 400, err);
-			}else{
-				if(!functions.isUndefined(req.file)){
-					functions.ArrayResponse(res, 200, "Success", req.file);
+		uploadImage("image").then(resolve => {
+			resolve(req, res, function(err) {
+				if(err){
+					functions.BaseResponse(res, 400, err);
 				}else{
-					functions.BaseResponse(res, 400, "Failed");
+					if(!functions.isUndefined(req.file)){
+						functions.ArrayResponse(res, 200, "Success", req.file);
+					}else{
+						functions.BaseResponse(res, 400, "Failed");
+					}
 				}
-			}
+			});
+		}).catch(reject => {
+			functions.BaseResponse(res, 400, reject);
 		});
 	}catch(error){
 		functions.BaseResponse(res, 400, error);
@@ -266,6 +247,39 @@ exports.delete_data = function(req, res) {
 	}catch(error){
 		functions.BaseResponse(res, 400, error);
 	}
+};
+
+function uploadImage(param) {
+	return new Promise(function(resolve, reject) {
+		try{
+			const path = require('path');
+			var storage = multer.diskStorage({
+				destination: (req, file, callback) => {
+					callback(null, __basedir + "/uploads/admin/")
+				},
+				filename: (req, file, callback) => {
+				  	callback(null, file.fieldname + "-" + Date.now() + "-" + file.originalname)
+				}
+			});
+			var upload = multer({
+				storage: storage,
+				limits: {
+					fileSize: 9 * 1024 * 1024 //9MB
+				},
+				fileFilter: (req, file, callback) => {
+					var filetypes = /jpeg|jpg|png/;
+					var extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+					if(!extname){
+					  	return callback(new Error("File upload only supports the following filetypes - " + filetypes));
+					}
+					callback(null, true);
+				}
+			}).single(param);
+			resolve(upload);
+		}catch(error){
+			reject(error);
+		}
+	});
 };
 
 function getSalthHash(email) {
