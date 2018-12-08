@@ -39,6 +39,46 @@ exports.login = function(req, res) {
 	});
 };
 
+exports.change_password = function(req, res) {
+	try{
+		var body = req.body;
+		var id = body.id;
+		var new_password = body.new_password;
+		var confirm_password = body.confirm_password;
+		if(new_password == confirm_password){
+			var passwords = passwordHash.saltHashPassword(new_password);
+			var query = {
+				_id: id
+			};
+			var field = {
+				salt_hash: passwords.salt,
+				password: passwords.password,
+				timestamp: Date.now()
+			};
+			var projection = {
+				salt_hash: 1,
+				password: 1,
+				status: 1
+			};
+			Admin.findOneAndUpdate(query, {$set: field}, {fields: projection, new: true}, function(err, data) {
+				if(err){
+					functions.ArrayResponse(res, 400, "Error", err);
+				}else{
+					if(!functions.isUndefined(data)){
+						functions.BaseResponse(res, 200, "Success");
+					}else{
+						functions.BaseResponse(res, 400, "Failed");
+					}
+				}
+			});
+		}else{
+			functions.BaseResponse(res, 401, "Confirm password does not match");
+		}
+	}catch(error){
+		functions.BaseResponse(res, 400, error);
+	}
+};
+
 exports.get_all = function(req, res) {
 	var size = 20;
 	var page = req.params.page;

@@ -1,6 +1,5 @@
 task 1
--fungsi checkUndefined diganti jadi isUndefined
--action change password
+-nanti disetiap action, tambahkan try catch untuk mengatasi error
 -uploading image
 
 task 2

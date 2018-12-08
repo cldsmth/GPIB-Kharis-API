@@ -13,6 +13,9 @@ module.exports = function(app) {
 	app.route("/admin/login")
 		.post(admin.login);
 
+	app.route("/admin/change-password")
+		.post(admin.change_password);
+
 	app.route("/admin/page/:page")
 		.get(admin.get_all);
 }
