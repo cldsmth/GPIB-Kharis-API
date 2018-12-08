@@ -10,8 +10,8 @@ var express = require("express"),
 mongoose.Promise = global.Promise;
 mongoose.connect('mongodb://localhost/gpib-api');
 
-app.use(bodyParser.urlencoded({extended: true}));
-app.use(bodyParser.json());
+app.use(bodyParser.json()); //for parsing application/json
+app.use(bodyParser.urlencoded({extended: true})); //for parsing application/xwww-form-urlencoded
 
 var categoryRoutes = require("./api/routes/categoryRoutes"); //importing category route
 var adminRoutes = require("./api/routes/adminRoutes"); //importing admin route
