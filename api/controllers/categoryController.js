@@ -62,7 +62,7 @@ exports.get_detail = function(req, res) {
 		if(err){
 			functions.ArrayResponse(res, 400, "Error", err);
 		}else{
-			if(functions.checkUndefined(data)){
+			if(!functions.isUndefined(data)){
 				functions.ArrayResponse(res, 200, "Data Exist", data);
 			}else{
 				functions.BaseResponse(res, 400, "No Data");
@@ -77,7 +77,7 @@ exports.insert_data = function(req, res) {
 		if(err){
 			functions.ArrayResponse(res, 400, "Error", err);
 		}else{
-			if(functions.checkUndefined(data)){
+			if(!functions.isUndefined(data)){
 				functions.ArrayResponse(res, 200, "Success", data);
 			}else{
 				functions.BaseResponse(res, 400, "Failed");
@@ -96,7 +96,7 @@ exports.update_data = function(req, res) {
 		if(err){
 			functions.ArrayResponse(res, 400, "Error", err);
 		}else{
-			if(functions.checkUndefined(data)){
+			if(!functions.isUndefined(data)){
 				functions.ArrayResponse(res, 200, "Success", data);
 			}else{
 				functions.BaseResponse(res, 400, "Failed");

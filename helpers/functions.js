@@ -11,16 +11,16 @@ module.exports.isEmpty = function(value) {
 	return typeof value == "string" && !value.trim() || typeof value == "undefined" || value === null;
 }
 
+module.exports.isUndefined = function(data) {
+	return typeof data !== "undefined" && data !== null ? false : true;
+}
+
 module.exports.parseObjectToJSON = function(data) {
 	return JSON.stringify(data);
 }
 
 module.exports.checkArray = function(data) {
 	return Array.isArray(data) && data.length ? true : false;
-}
-
-module.exports.checkUndefined = function(data) {
-	return typeof data !== "undefined" && data !== null ? true : false;
 }
 
 module.exports.BaseResponse = function(res, status, message) {

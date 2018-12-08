@@ -23,7 +23,7 @@ exports.login = function(req, res) {
 			if(err){
 				functions.ArrayResponse(res, 400, "Error", err);
 			}else{
-				if(functions.checkUndefined(data)){
+				if(!functions.isUndefined(data)){
 					if(data.status == 1){
 						functions.ArrayResponse(res, 200, "Success", data);	
 					}else{
@@ -90,7 +90,7 @@ exports.get_detail = function(req, res) {
 		if(err){
 			functions.ArrayResponse(res, 400, "Error", err);
 		}else{
-			if(functions.checkUndefined(data)){
+			if(!functions.isUndefined(data)){
 				functions.ArrayResponse(res, 200, "Data Exist", data);
 			}else{
 				functions.BaseResponse(res, 400, "No Data");
@@ -115,7 +115,7 @@ exports.insert_data = function(req, res) {
 		if(err){
 			functions.ArrayResponse(res, 400, "Error", err);
 		}else{
-			if(functions.checkUndefined(data)){
+			if(!functions.isUndefined(data)){
 				functions.ArrayResponse(res, 200, "Success", data);
 			}else{
 				functions.BaseResponse(res, 400, "Failed");
@@ -139,7 +139,7 @@ exports.update_data = function(req, res) {
 		if(err){
 			functions.ArrayResponse(res, 400, "Error", err);
 		}else{
-			if(functions.checkUndefined(data)){
+			if(!functions.isUndefined(data)){
 				functions.ArrayResponse(res, 200, "Success", data);
 			}else{
 				functions.BaseResponse(res, 400, "Failed");
@@ -170,7 +170,7 @@ function getSalthHash(email) {
 				if(err){
 					value = ""; 
 				}else{
-					if(functions.checkUndefined(data)){
+					if(!functions.isUndefined(data)){
 						value = data.salt_hash;
 					}else{
 						value = "";
