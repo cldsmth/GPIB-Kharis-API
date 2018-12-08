@@ -1,5 +1,5 @@
 task 1
--crop image saat upload image
+-multer upload 2 kali di tempat yang berbeda
 -finishing uploading image insert/update admin
 
 task 2

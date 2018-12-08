@@ -2,7 +2,7 @@
 var functions = require("../../helpers/functions");
 var PasswordHash = require("../../class/PasswordHash"), passwordHash = new PasswordHash();
 var mongoose = require("mongoose"), Admin = mongoose.model("admins");
-var multer = require("multer");
+var multer = require("multer"), sharp = require("sharp");
 
 exports.upload_image = function(req, res) {
 	try{
@@ -12,6 +12,15 @@ exports.upload_image = function(req, res) {
 					functions.BaseResponse(res, 400, err);
 				}else{
 					if(!functions.isUndefined(req.file)){
+						//var path = req.file.destination + "thmb/" + req.file.filename; 
+						var path = req.file.path;
+						sharp(path).toBuffer().then(data => {
+							sharp(data).resize(200, 200).toFile(path, (error, info) => {
+								console.log(info);
+							})
+						}).catch(error => {
+							console.log(error);
+						});
 						functions.ArrayResponse(res, 200, "Success", req.file);
 					}else{
 						functions.BaseResponse(res, 400, "Failed");

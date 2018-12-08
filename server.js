@@ -4,7 +4,8 @@ var express = require("express"),
 	mongoose = require("mongoose"),
 	Category = require("./api/models/categoryModel"), //created model category here
 	Admin = require("./api/models/adminModel"), //created model admin here
-	bodyParser = require("body-parser");
+	bodyParser = require("body-parser"),
+	cors = require("cors");
 	
 global.__basedir = __dirname;
 
@@ -14,6 +15,7 @@ mongoose.connect('mongodb://localhost/gpib-api');
 
 app.use(bodyParser.json()); //for parsing application/json
 app.use(bodyParser.urlencoded({extended: true})); //for parsing application/xwww-form-urlencoded
+app.use(cors()); //cross origin
 
 var categoryRoutes = require("./api/routes/categoryRoutes"); //importing category route
 var adminRoutes = require("./api/routes/adminRoutes"); //importing admin route
