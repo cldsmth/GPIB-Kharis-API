@@ -7,7 +7,7 @@ exports.login = function(req, res) {
 	var body = req.body;
 	var email = body.email;
 	var password = body.password;
-	getSalthHash(email).then((resolve) => {
+	getSalthHash(email).then(resolve => {
 		var query = {
 			email: email,
 			password: passwordHash.getHashPassword(password, resolve)
@@ -42,6 +42,7 @@ exports.login = function(req, res) {
 exports.get_all = function(req, res) {
 	var size = 20;
 	var page = req.params.page;
+	var query = {};
 	var projection = {
 		name: true,
 		email: true,
@@ -55,11 +56,11 @@ exports.get_all = function(req, res) {
     	limit: size
 	};
 	if(Number(page)){
-		Admin.count({}, function(err_count, tot_count) {
+		Admin.count(query, function(err_count, tot_count) {
 	    	if(err_count){
 				functions.ArrayResponse(res, 400, "Error", err_count);
 			}else{
-				Admin.find({}, projection, options).sort({datetime: -1}).exec(function(err, data) {
+				Admin.find(query, projection, options).sort({datetime: -1}).exec(function(err, data) {
 					if(err){
 						functions.ArrayResponse(res, 400, "Error", err);
 					}else{
@@ -124,9 +125,17 @@ exports.insert_data = function(req, res) {
 };
 
 exports.update_data = function(req, res) {
+	var projection = {
+		name: 1,
+		email: 1,
+		img: 1,
+		status: 1,
+		timestamp: 1,
+		datetime: 1
+	};
 	var body = req.body;
 	body.timestamp = Date.now();
-	Admin.findOneAndUpdate({_id: req.params.id}, body, {new: true}, function(err, data) {
+	Admin.findOneAndUpdate({_id: req.params.id}, body, {fields: projection, new: true}, function(err, data) {
 		if(err){
 			functions.ArrayResponse(res, 400, "Error", err);
 		}else{

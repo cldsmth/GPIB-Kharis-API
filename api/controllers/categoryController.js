@@ -3,6 +3,7 @@ var functions = require("../../helpers/functions");
 var mongoose = require("mongoose"), Category = mongoose.model("categories");
 
 exports.get_all = function(req, res) {
+	var query = {};
 	var projection = {
 		title: true,
 		type: true,
@@ -15,7 +16,7 @@ exports.get_all = function(req, res) {
 			title: 1
 		}
 	};
-	Category.find({}, projection, options, function(err, data) {
+	Category.find(query, projection, options, function(err, data) {
 		if(err){
 			functions.ArrayResponse(res, 400, "Error", err);
 		}else{
@@ -86,9 +87,12 @@ exports.insert_data = function(req, res) {
 };
 
 exports.update_data = function(req, res) {
+	var projection = {
+		__v: 0
+	}
 	var body = req.body;
 	body.timestamp = Date.now();
-	Category.findOneAndUpdate({_id: req.params.id}, body, {new: true}, function(err, data) {
+	Category.findOneAndUpdate({_id: req.params.id}, body, {fields: projection, new: true}, function(err, data) {
 		if(err){
 			functions.ArrayResponse(res, 400, "Error", err);
 		}else{

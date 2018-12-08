@@ -1,5 +1,5 @@
 task 1
--saat update, di bikin yang di return hanya field-field yang di update saja
+-fungsi checkUndefined diganti jadi isUndefined
 -action change password
 -uploading image
 
