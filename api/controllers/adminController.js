@@ -13,22 +13,18 @@ exports.upload = function(req, res) {
 					functions.BaseResponse(res, 400, err);
 				}else{
 					if(!functions.isUndefined(req.file)){
-						var src = req.file.path; 
-						var dest = req.file.destination + "thmb/" + req.file.filename;
-						fs.copyFile(src, dest, (err) => {
-							if(err){
-								console.log(err);
-						  	}else{
-						  		sharp(dest).toBuffer().then(data => {
-									sharp(data).resize(200, 200).toFile(dest, (error, info) => {
-										console.log(info);
-									})
-								}).catch(error => {
-									console.log(error);
-								});		
-						  	}
-						});
-						functions.ArrayResponse(res, 200, "Success", req.file);
+						setImage(req.body.id, req.file).then(resolve => {
+							if(!functions.isUndefined(resolve)){
+								//taru fungsi remove image sebelumnya yg ada di database
+								functions.ArrayResponse(res, 200, "Success", resolve);	
+							}else{
+								//taru fungsi disini utk remove image yang di upload kalo set image error
+								functions.BaseResponse(res, 400, "Failed");
+							}
+						}).catch(reject => {
+							//taru fungsi disini utk remove image yang di upload kalo set image error
+							functions.BaseResponse(res, 400, reject);
+						})
 					}else{
 						functions.BaseResponse(res, 400, "Failed");
 					}
@@ -265,6 +261,70 @@ exports.delete_data = function(req, res) {
 	}
 };
 
+function getSalthHash(email) {
+	return new Promise(function(resolve, reject) {
+		try{
+			Admin.findOne({email: email}, {salt_hash: true}, function(err, data) {
+				var value;
+				if(err){
+					value = ""; 
+				}else{
+					if(!functions.isUndefined(data)){
+						value = data.salt_hash;
+					}else{
+						value = "";
+					}
+				}
+				resolve(value);
+			});
+		}catch(error){
+			reject(error);
+		}
+	});
+};
+
+function setImage(id, file) {
+	return new Promise(function(resolve, reject) {
+		try{
+			var filename = file.filename;
+			var src = file.path; 
+			var dest = file.destination + "thmb/" + filename;
+			fs.copyFile(src, dest, (err) => {
+				if(err){
+					console.log(err);
+			  	}else{
+			  		sharp(dest).toBuffer().then(data => {
+						sharp(data).resize(200, 200).toFile(dest, (error, info) => {
+							console.log(info);
+						})
+					}).catch(error => {
+						console.log(error);
+					});		
+			  	}
+			  	var query = {
+					_id: id
+				};
+			  	var field = {
+					img: filename,
+					timestamp: Date.now()
+				};
+				var projection = {
+					img: 1
+				};
+				Admin.findOneAndUpdate(query, {$set: field}, {fields: projection, new: true}, function(err, data) {
+					if(err){
+						reject(err);
+					}else{
+						resolve(data);
+					}
+				});
+			});
+		}catch(error){
+			reject(error);
+		}
+	})
+};
+
 function uploadImage(param) {
 	return new Promise(function(resolve, reject) {
 		try{
@@ -291,28 +351,6 @@ function uploadImage(param) {
 				}
 			}).single(param);
 			resolve(upload);
-		}catch(error){
-			reject(error);
-		}
-	});
-};
-
-function getSalthHash(email) {
-	return new Promise(function(resolve, reject) {
-		try{
-			Admin.findOne({email: email}, {salt_hash: true}, function(err, data) {
-				var value;
-				if(err){
-					value = ""; 
-				}else{
-					if(!functions.isUndefined(data)){
-						value = data.salt_hash;
-					}else{
-						value = "";
-					}
-				}
-				resolve(value);
-			});
 		}catch(error){
 			reject(error);
 		}

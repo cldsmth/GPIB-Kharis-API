@@ -1,4 +1,6 @@
 task 1
+-bikin fungsi remove image yang sebelumnya / remove file
+-bikin public variable untuk lokasi upload image
 -finishing uploading image insert/update admin
 
 task 2
