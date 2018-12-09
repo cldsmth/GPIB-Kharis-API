@@ -3,8 +3,9 @@ var functions = require("../../helpers/functions");
 var PasswordHash = require("../../class/PasswordHash"), passwordHash = new PasswordHash();
 var mongoose = require("mongoose"), Admin = mongoose.model("admins");
 var multer = require("multer"), sharp = require("sharp");
+var path = require("path"), fs = require("fs");
 
-exports.upload_image = function(req, res) {
+exports.upload = function(req, res) {
 	try{
 		uploadImage("image").then(resolve => {
 			resolve(req, res, function(err) {
@@ -12,14 +13,20 @@ exports.upload_image = function(req, res) {
 					functions.BaseResponse(res, 400, err);
 				}else{
 					if(!functions.isUndefined(req.file)){
-						//var path = req.file.destination + "thmb/" + req.file.filename; 
-						var path = req.file.path;
-						sharp(path).toBuffer().then(data => {
-							sharp(data).resize(200, 200).toFile(path, (error, info) => {
-								console.log(info);
-							})
-						}).catch(error => {
-							console.log(error);
+						var src = req.file.path; 
+						var dest = req.file.destination + "thmb/" + req.file.filename;
+						fs.copyFile(src, dest, (err) => {
+							if(err){
+								console.log(err);
+						  	}else{
+						  		sharp(dest).toBuffer().then(data => {
+									sharp(data).resize(200, 200).toFile(dest, (error, info) => {
+										console.log(info);
+									})
+								}).catch(error => {
+									console.log(error);
+								});		
+						  	}
 						});
 						functions.ArrayResponse(res, 200, "Success", req.file);
 					}else{
@@ -33,7 +40,7 @@ exports.upload_image = function(req, res) {
 	}catch(error){
 		functions.BaseResponse(res, 400, error);
 	}
-}
+};
 
 exports.login = function(req, res) {
 	try{
@@ -261,7 +268,6 @@ exports.delete_data = function(req, res) {
 function uploadImage(param) {
 	return new Promise(function(resolve, reject) {
 		try{
-			const path = require('path');
 			var storage = multer.diskStorage({
 				destination: (req, file, callback) => {
 					callback(null, __basedir + "/uploads/admin/")

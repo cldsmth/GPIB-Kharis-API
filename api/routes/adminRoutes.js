@@ -20,5 +20,5 @@ module.exports = function(app) {
 		.get(admin.get_all);
 
 	app.route("/admin/upload")
-		.post(admin.upload_image);
+		.post(admin.upload);
 }
