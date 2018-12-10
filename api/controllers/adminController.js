@@ -13,33 +13,43 @@ exports.upload = function(req, res) {
 					functions.BaseResponse(res, 400, err);
 				}else{
 					if(!functions.isUndefined(req.file)){
-						var filename = req.file.filename;
-						var src = req.file.path;
-						var dest = req.file.destination + "thmb/" + filename;
-						setImage(req.body.id, filename).then(resolve => {
-							if(!functions.isUndefined(resolve)){
-								fs.copyFile(src, dest, (err) => {
-									if(err){
-										console.log(err);
-								  	}else{
-								  		sharp(dest).toBuffer().then(data => {
-											sharp(data).resize(200, 200).toFile(dest, (error, info) => {
-												console.log(info);
-											})
-										}).catch(error => {
-											console.log(error);
-										});		
-								  	}
-								  	functions.ArrayResponse(res, 200, "Success", resolve);
-								});
-							}else{
+						var id = req.body.id;
+						getImage(id).then(resolve => {
+							var old_image = resolve;
+							var filename = req.file.filename;
+							var src = req.file.path;
+							var dest = req.file.destination + "thmb/" + filename;
+							setImage(id, filename).then(resolve => {
+								if(!functions.isUndefined(resolve)){
+									if(!functions.isEmpty(old_image)){
+										functions.remove_file(fs, __dir_admin + old_image);
+										functions.remove_file(fs, __dir_admin + "thmb/" +old_image);
+									}
+									fs.copyFile(src, dest, (err) => {
+										if(err){
+											console.log(err);
+									  	}else{
+									  		sharp(dest).toBuffer().then(data => {
+												sharp(data).resize(200, 200).toFile(dest, (error, info) => {
+													console.log(info);
+												})
+											}).catch(error => {
+												console.log(error);
+											});		
+									  	}
+									  	functions.ArrayResponse(res, 200, "Success", resolve);
+									});
+								}else{
+									functions.remove_file(fs, src);
+									functions.BaseResponse(res, 400, "Failed");
+								}
+							}).catch(reject => {
 								functions.remove_file(fs, src);
-								functions.BaseResponse(res, 400, "Failed");
-							}
+								functions.BaseResponse(res, 400, reject);
+							});
 						}).catch(reject => {
-							functions.remove_file(fs, src);
 							functions.BaseResponse(res, 400, reject);
-						})
+						});
 					}else{
 						functions.BaseResponse(res, 400, "Failed");
 					}
@@ -260,16 +270,25 @@ exports.update_data = function(req, res) {
 
 exports.delete_data = function(req, res) {
 	try{
-		Admin.deleteOne({_id: req.params.id}, function(err, data) {
-			if(err){
-				functions.ArrayResponse(res, 400, "Error", err);
-			}else{
-				if(data.n >= 1){
-					functions.BaseResponse(res, 200, "Success");
+		var id = req.params.id;
+		getImage(id).then(resolve => {
+			Admin.deleteOne({_id: id}, function(err, data) {
+				if(err){
+					functions.ArrayResponse(res, 400, "Error", err);
 				}else{
-					functions.BaseResponse(res, 400, "Failed");
+					if(data.n >= 1){
+						if(!functions.isEmpty(resolve)){
+							functions.remove_file(fs, __dir_admin + resolve);
+							functions.remove_file(fs, __dir_admin + "thmb/" +resolve);
+						}
+						functions.BaseResponse(res, 200, "Success");
+					}else{
+						functions.BaseResponse(res, 400, "Failed");
+					}
 				}
-			}
+			});
+		}).catch(reject => {
+			functions.BaseResponse(res, 400, reject);
 		});
 	}catch(error){
 		functions.BaseResponse(res, 400, error);
@@ -286,6 +305,28 @@ function getSalthHash(email) {
 				}else{
 					if(!functions.isUndefined(data)){
 						value = data.salt_hash;
+					}else{
+						value = "";
+					}
+				}
+				resolve(value);
+			});
+		}catch(error){
+			reject(error);
+		}
+	});
+};
+
+function getImage(id) {
+	return new Promise(function(resolve, reject) {
+		try{
+			Admin.findOne({_id: id}, {img: true}, function(err, data) {
+				var value;
+				if(err){
+					value = "";
+				}else{
+					if(!functions.isUndefined(data)){
+						value = data.img;
 					}else{
 						value = "";
 					}
@@ -321,5 +362,5 @@ function setImage(id, filename) {
 		}catch(error){
 			reject(error);
 		}
-	})
+	});
 };
