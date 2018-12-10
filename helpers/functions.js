@@ -1,3 +1,51 @@
+module.exports.remove_file = function(fs, path) {
+	fs.exists(path, function(exists) {
+		if(exists){
+			fs.unlink(path, function(err) {
+				if(err){
+					return false;
+				}else{
+					return true;
+				}
+			});
+		}else{
+			return false;
+		}
+	});
+};
+
+module.exports.save_image = function(multer, path, dir) {
+	return new Promise(function(resolve, reject) {
+		try{
+			var storage = multer.diskStorage({
+				destination: (req, file, callback) => {
+					callback(null, dir)
+				},
+				filename: (req, file, callback) => {
+				  	callback(null, file.fieldname + "-" + Date.now() + "-" + file.originalname)
+				}
+			});
+			var upload = multer({
+				storage: storage,
+				limits: {
+					fileSize: 9 * 1024 * 1024 //9MB
+				},
+				fileFilter: (req, file, callback) => {
+					var filetypes = /jpeg|jpg|png/;
+					var extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+					if(!extname){
+					  	return callback(new Error("File upload only supports the following filetypes - " + filetypes));
+					}
+					callback(null, true);
+				}
+			}).single("image");
+			resolve(upload);
+		}catch(error){
+			reject(error);
+		}
+	});
+};
+
 module.exports.generate_code = function(length) {
 	var text = "";
 	var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";

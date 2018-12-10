@@ -7,22 +7,37 @@ var path = require("path"), fs = require("fs");
 
 exports.upload = function(req, res) {
 	try{
-		uploadImage("image").then(resolve => {
+		functions.save_image(multer, path, __dir_admin).then(resolve => {
 			resolve(req, res, function(err) {
 				if(err){
 					functions.BaseResponse(res, 400, err);
 				}else{
 					if(!functions.isUndefined(req.file)){
-						setImage(req.body.id, req.file).then(resolve => {
+						var filename = req.file.filename;
+						var src = req.file.path;
+						var dest = req.file.destination + "thmb/" + filename;
+						setImage(req.body.id, filename).then(resolve => {
 							if(!functions.isUndefined(resolve)){
-								//taru fungsi remove image sebelumnya yg ada di database
-								functions.ArrayResponse(res, 200, "Success", resolve);	
+								fs.copyFile(src, dest, (err) => {
+									if(err){
+										console.log(err);
+								  	}else{
+								  		sharp(dest).toBuffer().then(data => {
+											sharp(data).resize(200, 200).toFile(dest, (error, info) => {
+												console.log(info);
+											})
+										}).catch(error => {
+											console.log(error);
+										});		
+								  	}
+								  	functions.ArrayResponse(res, 200, "Success", resolve);
+								});
 							}else{
-								//taru fungsi disini utk remove image yang di upload kalo set image error
+								functions.remove_file(fs, src);
 								functions.BaseResponse(res, 400, "Failed");
 							}
 						}).catch(reject => {
-							//taru fungsi disini utk remove image yang di upload kalo set image error
+							functions.remove_file(fs, src);
 							functions.BaseResponse(res, 400, reject);
 						})
 					}else{
@@ -283,76 +298,28 @@ function getSalthHash(email) {
 	});
 };
 
-function setImage(id, file) {
+function setImage(id, filename) {
 	return new Promise(function(resolve, reject) {
 		try{
-			var filename = file.filename;
-			var src = file.path; 
-			var dest = file.destination + "thmb/" + filename;
-			fs.copyFile(src, dest, (err) => {
+			var query = {
+				_id: id
+			};
+		  	var field = {
+				img: filename,
+				timestamp: Date.now()
+			};
+			var projection = {
+				img: 1
+			};
+			Admin.findOneAndUpdate(query, {$set: field}, {fields: projection, new: true}, function(err, data) {
 				if(err){
-					console.log(err);
-			  	}else{
-			  		sharp(dest).toBuffer().then(data => {
-						sharp(data).resize(200, 200).toFile(dest, (error, info) => {
-							console.log(info);
-						})
-					}).catch(error => {
-						console.log(error);
-					});		
-			  	}
-			  	var query = {
-					_id: id
-				};
-			  	var field = {
-					img: filename,
-					timestamp: Date.now()
-				};
-				var projection = {
-					img: 1
-				};
-				Admin.findOneAndUpdate(query, {$set: field}, {fields: projection, new: true}, function(err, data) {
-					if(err){
-						reject(err);
-					}else{
-						resolve(data);
-					}
-				});
+					reject(err);
+				}else{
+					resolve(data);
+				}
 			});
 		}catch(error){
 			reject(error);
 		}
 	})
-};
-
-function uploadImage(param) {
-	return new Promise(function(resolve, reject) {
-		try{
-			var storage = multer.diskStorage({
-				destination: (req, file, callback) => {
-					callback(null, __basedir + "/uploads/admin/")
-				},
-				filename: (req, file, callback) => {
-				  	callback(null, file.fieldname + "-" + Date.now() + "-" + file.originalname)
-				}
-			});
-			var upload = multer({
-				storage: storage,
-				limits: {
-					fileSize: 9 * 1024 * 1024 //9MB
-				},
-				fileFilter: (req, file, callback) => {
-					var filetypes = /jpeg|jpg|png/;
-					var extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-					if(!extname){
-					  	return callback(new Error("File upload only supports the following filetypes - " + filetypes));
-					}
-					callback(null, true);
-				}
-			}).single(param);
-			resolve(upload);
-		}catch(error){
-			reject(error);
-		}
-	});
 };

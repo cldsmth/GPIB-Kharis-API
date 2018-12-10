@@ -8,6 +8,7 @@ var express = require("express"),
 	cors = require("cors");
 	
 global.__basedir = __dirname;
+global.__dir_admin = __basedir + "/uploads/admin/";
 
 //mongoose instance connection url connection
 mongoose.Promise = global.Promise;
