@@ -1,4 +1,6 @@
 task 1
+-coba cari fungsi promise yang ngga berbentuk paramida (promise di dalam promise),
+ cari yang bisa langsung dalam satu promise
 -finishing uploading image insert/update admin
 
 task 2

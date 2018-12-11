@@ -37,8 +37,8 @@ exports.upload = function(req, res) {
 												console.log(error);
 											});		
 									  	}
-									  	functions.ArrayResponse(res, 200, "Success", resolve);
 									});
+									functions.ArrayResponse(res, 200, "Success", resolve);
 								}else{
 									functions.remove_file(fs, src);
 									functions.BaseResponse(res, 400, "Failed");

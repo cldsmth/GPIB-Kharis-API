@@ -1,3 +1,12 @@
+module.exports.cleanSpace = function(string) {
+	var text = string.trim();
+    text = text.replace("'", "");
+    while(text.indexOf(" ") > -1){
+    	text = text.replace(" ", "-");
+    }
+    return text;
+};
+
 module.exports.remove_file = function(fs, path) {
 	fs.exists(path, function(exists) {
 		if(exists){
@@ -22,7 +31,7 @@ module.exports.save_image = function(multer, path, dir) {
 					callback(null, dir)
 				},
 				filename: (req, file, callback) => {
-				  	callback(null, file.fieldname + "-" + Date.now() + "-" + file.originalname)
+				  	callback(null, file.fieldname + "-" + Date.now() + "-" + module.exports.cleanSpace(file.originalname))
 				}
 			});
 			var upload = multer({
@@ -32,7 +41,7 @@ module.exports.save_image = function(multer, path, dir) {
 				},
 				fileFilter: (req, file, callback) => {
 					var filetypes = /jpeg|jpg|png/;
-					var extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+					var extname = filetypes.test(path.extname(module.exports.cleanSpace(file.originalname)).toLowerCase());
 					if(!extname){
 					  	return callback(new Error("File upload only supports the following filetypes - " + filetypes));
 					}
