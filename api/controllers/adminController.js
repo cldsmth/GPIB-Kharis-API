@@ -242,26 +242,86 @@ exports.insert_data = function(req, res) {
 
 exports.update_data = function(req, res) {
 	try{
-		var projection = {
-			name: 1,
-			email: 1,
-			img: 1,
-			status: 1,
-			timestamp: 1,
-			datetime: 1
-		};
-		var body = req.body;
-		body.timestamp = Date.now();
-		Admin.findOneAndUpdate({_id: req.params.id}, body, {fields: projection, new: true}, function(err, data) {
-			if(err){
-				functions.ArrayResponse(res, 400, "Error", err);
-			}else{
-				if(!functions.isUndefined(data)){
-					functions.ArrayResponse(res, 200, "Success", data);
+		functions.save_image(multer, path, __dir_admin).then(resolve => {
+			resolve(req, res, function(err) {
+				if(err){
+					functions.BaseResponse(res, 400, err);
 				}else{
-					functions.BaseResponse(res, 400, "Failed");
+					var projection = {
+						name: 1,
+						email: 1,
+						img: 1,
+						status: 1,
+						timestamp: 1,
+						datetime: 1
+					};
+					var id = req.params.id;
+					var files = req.file;
+					var body = req.body;
+					body.timestamp = Date.now();
+					if(!functions.isUndefined(files)){
+						getImage(id).then(resolve => {
+							var old_image = resolve;
+							var filename = files.filename;
+							var src = files.path;
+							var dest = files.destination + "thmb/" + filename;
+							setImage(id, filename).then(resolve => {
+								if(!functions.isUndefined(resolve)){
+									if(!functions.isEmpty(old_image)){
+										functions.remove_file(fs, __dir_admin + old_image);
+										functions.remove_file(fs, __dir_admin + "thmb/" +old_image);
+									}
+									fs.copyFile(src, dest, (err) => {
+										if(err){
+											console.log(err);
+									  	}else{
+									  		sharp(dest).toBuffer().then(data => {
+												sharp(data).resize(200, 200).toFile(dest, (error, info) => {
+													console.log(info);
+												})
+											}).catch(error => {
+												console.log(error);
+											});		
+									  	}
+									});
+								}else{
+									functions.remove_file(fs, src);
+								}
+								Admin.findOneAndUpdate({_id: id}, body, {fields: projection, new: true}, function(err, data) {
+									if(err){
+										functions.ArrayResponse(res, 400, "Error", err);
+									}else{
+										if(!functions.isUndefined(data)){
+											functions.ArrayResponse(res, 200, "Success", data);
+										}else{
+											functions.BaseResponse(res, 400, "Failed");
+										}
+									}
+								});
+							}).catch(reject => {
+								functions.remove_file(fs, src);
+								functions.BaseResponse(res, 400, reject);
+							});
+						}).catch(reject => {
+							functions.BaseResponse(res, 400, reject);
+						});
+					}else{
+						Admin.findOneAndUpdate({_id: id}, body, {fields: projection, new: true}, function(err, data) {
+							if(err){
+								functions.ArrayResponse(res, 400, "Error", err);
+							}else{
+								if(!functions.isUndefined(data)){
+									functions.ArrayResponse(res, 200, "Success", data);
+								}else{
+									functions.BaseResponse(res, 400, "Failed");
+								}
+							}
+						});
+					}
 				}
-			}
+			});
+		}).catch(reject => {
+			functions.BaseResponse(res, 400, reject);
 		});
 	}catch(error){
 		functions.BaseResponse(res, 400, error);

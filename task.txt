@@ -1,7 +1,5 @@
 task 1
--coba cari fungsi promise yang ngga berbentuk paramida (promise di dalam promise),
- cari yang bisa langsung dalam satu promise
--finishing uploading image insert/update admin
+-finishing uploading image insert admin
 
 task 2
 -create api keluarga
